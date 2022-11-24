@@ -23,7 +23,9 @@ namespace TechJobsPersistentAutograded.Controllers
         {
             _repo = repo;
         }
-
+        [HttpGet]
+        [Route("/")]
+        [Route("/Index")]
         public IActionResult Index()
 
         {
@@ -36,18 +38,36 @@ namespace TechJobsPersistentAutograded.Controllers
         [HttpGet("/Add")]
         public IActionResult AddJob()
         {
-            return View();
+            AddJobViewModel addJobViewModel = new AddJobViewModel(_repo.GetAllEmployers(),new List<Skill>(_repo.GetAllSkills()));
+            return View(addJobViewModel);
         }
 
-
-        public IActionResult ProcessAddJobForm()
+        [HttpPost]
+        
+        [Route("/ProcessAddJobForm")]
+        public IActionResult ProcessAddJobForm(AddJobViewModel addJobViewModel, string[] selectedSkills)
         {
             if (ModelState.IsValid)
             {
+                Job job = new Job
+                {
+                    Name = addJobViewModel.Name
+                };
+                foreach(var skill in selectedSkills)
+                {
+                    JobSkill jobSkill = new JobSkill();
+                    jobSkill.SkillId = Int32.Parse(skill);
+                    jobSkill.Job = job;
+                    _repo.AddNewJobSkill (jobSkill);
+
+                }
+                job.EmployerId = addJobViewModel.EmployerId;
+                _repo.AddNewJob(job);
+                _repo.SaveChanges();
                 return Redirect("Index");
             }
 
-            return View("Add");
+            return View(addJobViewModel);
         }
 
 
