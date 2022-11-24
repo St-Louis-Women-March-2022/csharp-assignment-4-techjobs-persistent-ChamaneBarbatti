@@ -11,28 +11,55 @@ using TechJobsPersistentAutograded.ViewModels;
 
 namespace TechJobsPersistentAutograded.Controllers
 {
+   
     public class EmployerController : Controller
     {
+        private JobRepository jobRepository;
+        public EmployerController(JobRepository jobRepository)
+        {
+            this.jobRepository = jobRepository;
+        }
+    
 
         // GET: /<controller>/
         public IActionResult Index()
         {
-            return View();
+           IEnumerable<Employer> employers = jobRepository.GetAllEmployers();
+
+
+           
+            return View(employers);
         }
 
         public IActionResult Add()
-        {
-            return View();
+        { 
+            AddEmployerViewModel addEmployerViewModel = new AddEmployerViewModel();
+            return View(addEmployerViewModel);
         }
 
-        public IActionResult ProcessAddEmployerForm()
+        public IActionResult ProcessAddEmployerForm(AddEmployerViewModel addEmployerViewModel)
         {
-            return View();
+            if (ModelState.IsValid)
+            {
+                Employer employer = new Employer
+                {
+                    Name = addEmployerViewModel.Name,
+                    Location = addEmployerViewModel.Location
+                };
+                jobRepository.AddNewEmployer(employer);
+                jobRepository.SaveChanges();
+                return Redirect("/Employer");
+
+            }
+            return View(addEmployerViewModel);
         }
 
         public IActionResult About(int id)
         {
-            return View();
+            Employer employer = jobRepository.FindEmployerById(id);
+
+
+            return View(employer);
         }
     }
 }

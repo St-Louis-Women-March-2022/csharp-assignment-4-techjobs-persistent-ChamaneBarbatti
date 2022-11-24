@@ -74,6 +74,29 @@ namespace TechJobsPersistentAutograded.Controllers
                         displayJobs.Add(newDisplayJob);
                     }
                 }
+                else if (searchType == "all")
+                {
+                    jobs = _repo.FindJobsByEmployer(searchTerm).ToList();
+
+                    foreach (Job job in jobs)
+                    {
+                        List<JobSkill> jobSkill = _repo.FindSkillsForJob(job.Id).ToList();
+
+                        JobDetailViewModel newDisplayJob = new JobDetailViewModel(job, jobSkill);
+                        displayJobs.Add(newDisplayJob);
+                    }
+                    List<JobSkill> jobSkills = _repo.FindJobSkillsBySkill(searchTerm).ToList();
+
+                    foreach (var job in jobSkills)
+                    {
+                        Job foundJob = _repo.FindJobByJobSkill(job.JobId);
+
+                        List<JobSkill> displaySkills = _repo.FindSkillsForJob(foundJob.Id).ToList();
+
+                        JobDetailViewModel newDisplayJob = new JobDetailViewModel(foundJob, displaySkills);
+                        displayJobs.Add(newDisplayJob);
+                    }
+                }
             }
 
             ViewBag.columns = ListController.ColumnChoices;
